@@ -1,0 +1,3 @@
+SCAN_DIR=./app/Controller
+SCAN_ROOT=App\
+version=1.9999999999
