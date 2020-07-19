@@ -27,7 +27,7 @@ class UserController
     public function test(Request $request, int $value1, int $value2, Response $response)
     {
 //        $response->withHttpStatus(404);
-        $response->redirect('https://www.baidu.com/');
-        return $value1 + $value2;
+//        $response->redirect('https://www.baidu.com/');
+        return 'test111122222222';
     }
 }
