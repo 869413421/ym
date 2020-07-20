@@ -97,6 +97,31 @@ class BeanFactory
     }
 
     /**
+     * 获取目录下所有PHP文件
+     * @param $dir
+     * @return array
+     */
+    private static function getAllPHPFile($dir)
+    {
+        $result = [];
+        $files = glob($dir . '/*');
+
+        foreach ($files as $file)
+        {
+            if (is_dir($file))
+            {
+                $result = array_merge($result, self::getAllPHPFile($file));
+            }
+            else if (pathinfo($file)["extension"] === "php")
+            {
+                $result[] = $file;
+            }
+        }
+
+        return $result;
+    }
+
+    /**
      * 扫描注解
      * @param $scanDir *需要扫描的目录
      * @param $scanRootNameSpace *需要处理类的命名空间前缀
@@ -107,7 +132,7 @@ class BeanFactory
      */
     public static function scanBeans($scanDir, $scanRootNameSpace)
     {
-        $files = glob($scanDir . "/*.php");
+        $files = self::getAllPHPFile($scanDir);
 
         foreach ($files as $file)
         {
