@@ -152,6 +152,7 @@ class BeanFactory
                 $classAnnotations = $reader->getClassAnnotations($refClass);
                 foreach ($classAnnotations as $classAnnotation)
                 {
+                    if (!isset(self::$annotationHandler[get_class($classAnnotation)])) continue;
                     //找到注解对应的处理器
                     $handler = self::$annotationHandler[get_class($classAnnotation)];
                     //从容器中获取对象
@@ -185,6 +186,8 @@ class BeanFactory
             //处理所有的注解
             foreach ($propertyAnnotations as $annotation)
             {
+
+                if (!isset(self::$annotationHandler[get_class($annotation)])) continue;
                 //获取到对应的注解处理器
                 $handler = self::$annotationHandler[get_class($annotation)];
                 $handler($property, $instance, $annotation);
@@ -210,6 +213,7 @@ class BeanFactory
 
             foreach ($methodAnnotations as $annotation)
             {
+                if (!isset(self::$annotationHandler[get_class($annotation)])) continue;
                 //获取到对应的注解处理器
                 $handler = self::$annotationHandler[get_class($annotation)];
                 $handler($method, $instance, $annotation);
