@@ -13,13 +13,38 @@ class YmDB
 {
     private $db;
 
+    private $connectionName = 'default';
+
+    /**
+     * @return string
+     */
+    public function getConnectionName()
+    {
+        return $this->connectionName;
+    }
+
+
+    /**
+     * @param $connectionName
+     * @return $this
+     */
+    public function setConnectionName($connectionName)
+    {
+        $this->connectionName = $connectionName;
+        return $this;
+    }
+
     public function __construct()
     {
         global $GLOBALS_CONFIG;
         if (isset($GLOBALS_CONFIG['database']) && isset($GLOBALS_CONFIG['database']['default']))
         {
+            $configs = $GLOBALS_CONFIG['database'];
             $this->db = new DB();
-            $this->db->addConnection($GLOBALS_CONFIG['database']['default']);
+            foreach ($configs as $key => $value)
+            {
+                $this->db->addConnection($value, $key);
+            }
             $this->db->setAsGlobal();
             $this->db->bootEloquent();
         }
@@ -31,7 +56,7 @@ class YmDB
 
     public function __call($methodName, $arguments)
     {
-        return $this->db->$methodName(...$arguments);
+        return $this->db::connection($this->connectionName)->$methodName(...$arguments);
     }
 
     public static function __callStatic($methodName, $arguments)

@@ -85,15 +85,25 @@ class BeanFactory
     }
 
     /**
-     * 获取容器内的对象
+     * 获取容器内对象
      * @param $beanName
-     * @return mixed
-     * @throws \DI\DependencyException
-     * @throws \DI\NotFoundException
+     * @return mixed|null
      */
     public static function getBeans($beanName)
     {
-        return self::$container->get($beanName);
+        try
+        {
+            return self::$container->get($beanName);
+        }
+        catch (\Exception $exception)
+        {
+            return null;
+        };
+    }
+
+    public static function setBeans($beanName, $value)
+    {
+        return self::$container->set($beanName, $value);
     }
 
     /**

@@ -72,6 +72,11 @@ class Response
      */
     public function end()
     {
+        if (is_array($this->body) || is_object($this->body))
+        {
+            $this->setHeader('Content-Type', 'application/json');
+            $this->body = json_encode($this->body, JSON_UNESCAPED_UNICODE);
+        }
         $this->swooleResponse->write($this->body);
         $this->swooleResponse->end();
     }
