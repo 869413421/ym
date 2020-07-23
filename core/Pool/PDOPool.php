@@ -18,22 +18,4 @@ class PDOPool extends DBPool
         return new \PDO($dsn, $user, $passWord); //初始化一个PDO对象
     }
 
-    /**
-     * 获取POD链接
-     * @return \PDO
-     */
-    public function getConnectionInstance()
-    {
-        return $this->channel->pop();
-    }
-
-    /**
-     * 回收PDO链接
-     * @param $instance
-     * @return bool
-     */
-    public function pushConnectionInstance($instance)
-    {
-        return $this->channel->push($instance);
-    }
 }

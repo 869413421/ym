@@ -27,13 +27,27 @@ Co\run(function ()
             {
                 $pool->pushConnectionInstance($connection);
             });
-            $result[] = $connection->query('select sleep(1);');
+            $result[] = $connection->query('select sleep(10);');
             $wg->done();
         });
 
     }
+    for ($i = 0; $i < 6; $i++)
+    {
+        $wg->add();
+        go(function () use ($pool, $wg, &$result)
+        {
+            $connection = $pool->getConnectionInstance();
+            defer(function () use ($pool, $connection)
+            {
+                $pool->pushConnectionInstance($connection);
+            });
+            $result[] = $connection->query('select * form users limit 1;');
+            $wg->done();
+        });
+    }
     $wg->wait();
-    var_dump($result);
+//    var_dump($result);
     $etime = microtime(true); #获取程序执行结束的时间
     $total = $etime - $stime;   #计算差值
     echo "<br />{$total} times";
