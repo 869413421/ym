@@ -1,11 +1,11 @@
 <?php
 require __DIR__ . '/vendor/autoload.php';
 require_once __DIR__ . '/app/Config/define.php';
+
 use Core\BeanFactory;
 use Swoole\Http\Server;
 use Swoole\Http\Request;
 use Swoole\Http\Response;
-
 
 BeanFactory::init();
 $routeCollection = BeanFactory::getBeans('RouteCollection');
