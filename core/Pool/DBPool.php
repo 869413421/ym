@@ -3,6 +3,7 @@
 namespace Core\Pool;
 
 use Swoole\Coroutine\Channel;
+use Swoole\Timer;
 
 
 abstract class DBPool
@@ -13,25 +14,32 @@ abstract class DBPool
 
     private $channel;
 
-    private $connectionCount;
+    private $connectionCount = 0;
+
+    private $timeOut;
 
     abstract protected function createConnectionInstance();
 
-    public function __construct($min = 5, $max = 6)
+    public function __construct($min = 5, $max = 10, $timeOut = 10)
     {
         $this->poolMin = $min;
         $this->poolMax = $max;
         $this->channel = new Channel($this->poolMax);
+        $this->timeOut = $timeOut;
     }
 
     public function initPool()
     {
         for ($i = 0; $i < $this->poolMin; $i++)
         {
-            $connectionInstance = $this->createConnectionInstance();
-            $this->channel->push($connectionInstance);
+            $this->addConnectionToPool();
         }
-        $this->connectionCount = $this->poolMin;
+
+        //定时清理空闲链接
+        Timer::tick(2000, function ()
+        {
+            $this->cleanPool();
+        });
     }
 
     /**
@@ -49,10 +57,12 @@ abstract class DBPool
             }
             else
             {
-                echo 'pool is null' . PHP_EOL;
+                $this->channel->pop(5);
             }
         }
-        return $this->channel->pop();
+        $instance = $this->channel->pop();
+        $instance->useTime = time();
+        return $instance;
     }
 
     /**
@@ -76,12 +86,48 @@ abstract class DBPool
         try
         {
             $this->connectionCount++;
-            $this->pushConnectionInstance($this->createConnectionInstance());
+            $instance = new \stdClass();
+            $instance->useTime = time();
+            $instance->db = $this->createConnectionInstance();
+            $this->channel->push($instance);
         }
         catch (\PDOException $exception)
         {
             $this->connectionCount--;
             throw $exception;
+        }
+    }
+
+    public function cleanPool()
+    {
+        if ($this->channel->length() < (int)$this->poolMax * 0.6)
+            return;
+
+        $newPool = [];
+        while (true)
+        {
+            if ($this->channel->isEmpty())
+            {
+                break;
+            }
+
+            $instance = $this->channel->pop(0.1);
+            //如果当前链接数大于最小链接池，并且链接已经超过超时时间
+            if ($this->connectionCount > $this->poolMin && (time() - $instance->useTime) > $this->timeOut)
+            {
+                $instance = null;
+                $this->connectionCount--;
+            }
+            else
+            {
+                $newPool[] = $instance;
+            }
+        }
+
+        //将没过期的重新放置到链接池
+        foreach ($newPool as $newInstance)
+        {
+            $this->channel->push($newInstance);
         }
     }
 }

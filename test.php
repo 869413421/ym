@@ -13,7 +13,7 @@ Runtime::enableCoroutine(true);
 Co\run(function ()
 {
     $wg = new WaitGroup();
-    $pool = new \Core\Pool\PDOPool();
+    $pool = new \Core\Init\PDOPool();
     $pool->initPool();
     $stime = microtime(true); #获取程序开始执行的时间
     $result = [];
@@ -27,12 +27,12 @@ Co\run(function ()
             {
                 $pool->pushConnectionInstance($connection);
             });
-            $result[] = $connection->query('select sleep(10);');
+            $result[] = $connection->db->query('select * test limit 1;');
             $wg->done();
         });
 
     }
-    for ($i = 0; $i < 6; $i++)
+    for ($j = 0; $j < 5; $j++)
     {
         $wg->add();
         go(function () use ($pool, $wg, &$result)
@@ -42,12 +42,11 @@ Co\run(function ()
             {
                 $pool->pushConnectionInstance($connection);
             });
-            $result[] = $connection->query('select * form users limit 1;');
+            $result[] = $connection->db->query('select * test limit 1;');
             $wg->done();
         });
     }
     $wg->wait();
-//    var_dump($result);
     $etime = microtime(true); #获取程序执行结束的时间
     $total = $etime - $stime;   #计算差值
     echo "<br />{$total} times";

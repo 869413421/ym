@@ -1,7 +1,8 @@
 <?php
 
-namespace Core\Pool;
+namespace Core\Init;
 
+use Core\Pool\DBPool;
 
 class PDOPool extends DBPool
 {
@@ -9,7 +10,7 @@ class PDOPool extends DBPool
     {
         $dbms = 'mysql';     //数据库类型
         $host = '47.94.155.227'; //数据库主机名
-        $dbName = 'hyperf';    //使用的数据库
+        $dbName = 'test';    //使用的数据库
         $user = 'root';      //数据库连接用户名
         $passWord = 'Ym135168.';          //对应的密码
         $port = 3306;
