@@ -6,17 +6,29 @@ use Core\Pool\DBPool;
 
 class PDOPool extends DBPool
 {
+    public function __construct($min = 5, $max = 10, $timeOut = 10)
+    {
+        global $GLOBALS_CONFIG;
+        $poolConfig = $GLOBALS_CONFIG['databasePool']['default'];
+        parent::__construct($poolConfig['min'], $poolConfig['max'], $poolConfig['timeOut']);
+    }
+
     public function createConnectionInstance()
     {
-        $dbms = 'mysql';     //数据库类型
-        $host = '47.94.155.227'; //数据库主机名
-        $dbName = 'test';    //使用的数据库
-        $user = 'root';      //数据库连接用户名
-        $passWord = 'Ym135168.';          //对应的密码
-        $port = 3306;
-        $dsn = "$dbms:host=$host;dbname=$dbName;port=$port";
+        global $GLOBALS_CONFIG;
+        $config = $GLOBALS_CONFIG['database']['default'];
 
-        return new \PDO($dsn, $user, $passWord); //初始化一个PDO对象
+        {
+            $driver = $config['driver'];
+            $host = $config['host'];
+            $dbName = $config['database'];
+            $userName = $config['username'];
+            $passWord = $config['password'];
+            $port = $config['port'];
+            $dsn = "$driver:host=$host;dbname=$dbName;port=$port";
+        }
+
+        return new \PDO($dsn, $userName, $passWord); //初始化一个PDO对象
     }
 
 }

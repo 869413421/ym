@@ -3,6 +3,7 @@
 namespace Core\Init;
 
 use Core\Annotation\Bean;
+use Core\BeanFactory;
 use Illuminate\Database\Capsule\Manager as DB;
 
 /**
@@ -14,6 +15,11 @@ class YmDB
     private $db;
 
     private $connectionName = 'default';
+
+    /**
+     * @var PDOPool
+     */
+    private $pool;
 
     /**
      * @return string
@@ -43,10 +49,12 @@ class YmDB
             $this->db = new DB();
             foreach ($configs as $key => $value)
             {
-                $this->db->addConnection($value, $key);
+                $this->db->addConnection(['driver' => 'mysql'], $key);
             }
             $this->db->setAsGlobal();
             $this->db->bootEloquent();
+            $this->pool = BeanFactory::getBeans(PDOPool::class);
+            $this->pool->initPool();
         }
         else
         {
@@ -56,7 +64,33 @@ class YmDB
 
     public function __call($methodName, $arguments)
     {
-        return $this->db::connection($this->connectionName)->$methodName(...$arguments);
+        //从连接池获取一个连接
+        $pdo = $this->pool->getConnectionInstance();
+
+        try
+        {
+            //如果连接池为空不处理
+            if (!$pdo)
+            {
+                return null;
+            }
+
+            $this->db->getConnection($this->connectionName)->setPdo($pdo->db);
+            return $this->db->$methodName(...$arguments);
+        }
+        catch (\PDOException $exception)
+        {
+            return null;
+        }
+        finally
+        {
+            //放回连接池
+            if ($pdo)
+            {
+                $this->pool->pushConnectionInstance($pdo);
+            }
+        }
+
     }
 
     public static function __callStatic($methodName, $arguments)

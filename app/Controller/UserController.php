@@ -44,18 +44,18 @@ class UserController
     {
 //        $response->withHttpStatus(404);
 //        $response->redirect('https://www.baidu.com/');
-//        $result = $this->db->table('users')->first();
+        $result = $this->db->table('users')->first();
 //        $result2 = $this->db2->table('posts')->first();
 //        $arr = [
 //            'db1' => $result,
 //            'db2' => $result2
 //        ];
 
-        $user = User::all();
-        $post = Post::all();
+//        $user = User::all();
+//        $post = Post::all();
         return [
-            'user' => $user,
-            'post' => $post
+            'user' => $result,
+//            'post' => $post
         ];
     }
 }
