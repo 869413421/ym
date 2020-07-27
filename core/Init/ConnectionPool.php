@@ -2,9 +2,11 @@
 
 namespace Core\Init;
 
-use Core\Pool\DBPool;
 
-class PDOPool extends DBPool
+use Core\Pool\DBPool;
+use Illuminate\Database\Connection;
+
+class ConnectionPool extends DBPool
 {
     public function __construct($min = 5, $max = 10, $timeOut = 10)
     {
@@ -14,7 +16,7 @@ class PDOPool extends DBPool
         $this->initPool();
     }
 
-    public function createConnectionInstance()
+    protected function createConnectionInstance()
     {
         global $GLOBALS_CONFIG;
         $config = $GLOBALS_CONFIG['database']['default'];
@@ -29,7 +31,7 @@ class PDOPool extends DBPool
             $dsn = "$driver:host=$host;dbname=$dbName;port=$port";
         }
 
-        return new \PDO($dsn, $userName, $passWord); //初始化一个PDO对象
+        $pdo = new \PDO($dsn, $userName, $passWord); //初始化一个PDO对象
+        return new Connection($pdo);
     }
-
 }

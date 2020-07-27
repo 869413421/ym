@@ -16,6 +16,8 @@ class YmDB
 
     private $connectionName = 'default';
 
+    private $transDb;
+
     /**
      * @var PDOPool
      */
@@ -31,6 +33,63 @@ class YmDB
 
 
     /**
+     * 开始事务
+     * @return YmDB
+     * @throws \Exception
+     */
+    public function beginTransaction()
+    {
+        return new self($this->pool->getConnectionInstance());
+    }
+
+    /**
+     * 提交事务
+     */
+    public function commit()
+    {
+        try
+        {
+            /** @var $db \PDO */
+            $db = $this->transDb->db;
+            if (!$db->commit())
+            {
+                throw new \PDOException($db->errorInfo(), $db->errorCode());
+            }
+        }
+        catch (\PDOException $exception)
+        {
+            $this->rollBack();
+            throw $exception;
+        }
+        finally
+        {
+            $this->pool->pushConnectionInstance($this->transDb);
+        }
+    }
+
+    /**
+     * 回滚
+     */
+    public function rollBack()
+    {
+        try
+        {
+            /** @var $db \PDO */
+            $db = $this->transDb->db;
+            $db->rollBack();
+        }
+        catch (\PDOException $exception)
+        {
+            throw $exception;
+        }
+        finally
+        {
+            $this->pool->pushConnectionInstance($this->transDb);
+        }
+
+    }
+
+    /**
      * @param $connectionName
      * @return $this
      */
@@ -40,7 +99,7 @@ class YmDB
         return $this;
     }
 
-    public function __construct()
+    public function __construct($transDb = null)
     {
         global $GLOBALS_CONFIG;
         if (isset($GLOBALS_CONFIG['database']) && isset($GLOBALS_CONFIG['database']['default']))
@@ -54,7 +113,10 @@ class YmDB
             $this->db->setAsGlobal();
             $this->db->bootEloquent();
             $this->pool = BeanFactory::getBeans(PDOPool::class);
-            $this->pool->initPool();
+            if ($transDb)
+            {
+                $this->transDb = $transDb;
+            }
         }
         else
         {
@@ -64,28 +126,48 @@ class YmDB
 
     public function __call($methodName, $arguments)
     {
-        //从连接池获取一个连接
-        $pdo = $this->pool->getConnectionInstance();
+        $isTrans = false;
+        if ($this->transDb)
+        {
+            $pdo = $this->transDb;
+            $isTrans = true;
+        }
+        else
+        {
+            //从连接池获取一个连接
+            $pdo = $this->pool->getConnectionInstance();
+        }
 
         try
         {
             //如果连接池为空不处理
             if (!$pdo)
             {
-                return null;
+                throw new \PDOException('connection error');
             }
-
-            $this->db->getConnection($this->connectionName)->setPdo($pdo->db);
-            return $this->db->$methodName(...$arguments);
+            $dbConnection = $this->db->getConnection($this->connectionName)->setPdo($pdo->db);
+            if ($isTrans)
+            {
+                if (!$dbConnection->getPdo()->inTransaction())
+                {
+                    $dbConnection->getPdo()->beginTransaction();
+                };
+            }
+            $result = $dbConnection->$methodName(...$arguments);
+            return $result;
         }
         catch (\PDOException $exception)
         {
-            return null;
+            if ($isTrans)
+            {
+                $this->rollBack();
+            }
+            throw $exception;
         }
         finally
         {
             //放回连接池
-            if ($pdo)
+            if (!$isTrans)
             {
                 $this->pool->pushConnectionInstance($pdo);
             }

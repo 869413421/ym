@@ -94,6 +94,7 @@ class HttpServer
         }
         catch (Exception $exception)
         {
+            var_dump($exception->getFile(), $exception->getLine(), $exception->getTraceAsString());
             $response->end($exception->getMessage());
         }
     }

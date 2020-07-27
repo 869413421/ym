@@ -42,20 +42,18 @@ class UserController
      */
     public function test(Request $request, int $value1, int $value2, Response $response)
     {
-//        $response->withHttpStatus(404);
-//        $response->redirect('https://www.baidu.com/');
-        $result = $this->db->table('users')->first();
-//        $result2 = $this->db2->table('posts')->first();
-//        $arr = [
-//            'db1' => $result,
-//            'db2' => $result2
-//        ];
-
-//        $user = User::all();
-//        $post = Post::all();
+        return User::all();
+        $db = $this->db->beginTransaction();
+        $result = $db->table('user_favorite_products')->insertGetId([
+            'user_id' => 2,
+            'product_id' => 1
+        ]);
+        $user = $db->table('users')->find(1);
+        $db->table('users')->where('id', 1)->update(['name' => null]);
+        $db->commit();
         return [
-            'user' => $result,
-//            'post' => $post
+            'user' => $user,
+            'result' => $result
         ];
     }
 }
