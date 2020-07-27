@@ -4,7 +4,7 @@ return [
         'driver' => 'mysql',
         'host' => '47.94.155.227',
         'port' => 3306,
-        'database' => 'hyperf',
+        'database' => 'test',
         'username' => 'root',
         'password' => 'Ym135168.',
         'charset' => 'utf8',

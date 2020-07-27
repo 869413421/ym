@@ -116,11 +116,50 @@ class YmDB
             if ($transDb)
             {
                 $this->transDb = $transDb;
+                $this->db->getConnection($this->connectionName)->setPdo($transDb->db)->beginTransaction();
             }
         }
         else
         {
             throw new \Exception('database config setting error');
+        }
+    }
+
+    /**
+     * 获取当前PDO连接
+     * @return \PDO|null
+     */
+    public function getConnection()
+    {
+        $isTrans = false;
+
+        if ($this->transDb)
+        {
+            $pdo = $this->transDb;
+            $isTrans = true;
+        }
+        else
+        {
+            //从连接池获取一个连接
+            $pdo = $this->pool->getConnectionInstance();
+        }
+        if ($pdo && !$isTrans)
+        {
+            $this->db->getConnection($this->connectionName)->setPdo($pdo->db);
+        }
+
+        return $pdo;
+    }
+
+    /**
+     * 将连接放置到连接池
+     * @param $connectionInstance
+     */
+    public function releaseConnection($connectionInstance)
+    {
+        if (!$this->transDb && $connectionInstance)
+        {
+            $this->pool->pushConnectionInstance($connectionInstance);
         }
     }
 

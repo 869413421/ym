@@ -42,7 +42,7 @@ class UserController
      */
     public function test(Request $request, int $value1, int $value2, Response $response)
     {
-        return User::all();
+        return User::find(1);
         $db = $this->db->beginTransaction();
         $result = $db->table('user_favorite_products')->insertGetId([
             'user_id' => 2,
@@ -55,5 +55,64 @@ class UserController
             'user' => $user,
             'result' => $result
         ];
+    }
+
+    /**
+     * @RequestMapping(url="/add")
+     */
+    public function add(Request $request, Response $response)
+    {
+        $user = new User();
+        $user->name = 'xiaoming';
+        $user->score = 99;
+        $user->save();
+
+        return $user->toArray();
+    }
+
+    /**
+     * @RequestMapping(url="/update")
+     */
+    public function update(Request $request, Response $response)
+    {
+        $user = User::find(6);
+        $user->name = 'xiaolonglong';
+        $user->save();
+
+        return $user->toArray();
+    }
+
+    /**
+     * @RequestMapping(url="/delete")
+     */
+    public function delete(Request $request, Response $response)
+    {
+        $user = User::find(6);
+        $user->delete();
+
+        return 'delete success';
+    }
+
+    /**
+     * @RequestMapping(url="/trans")
+     */
+    public function trans(Request $request, Response $response)
+    {
+        $db = $this->db->beginTransaction();
+        $user = new User();
+        $user->name = 'xiaoming';
+        $user->score = 99;
+        $user->save();
+
+        $newUser = User::find(7);
+        if ($newUser != null)
+        {
+            $db->rollBack();
+        }
+        else
+        {
+            $db->commit();
+        }
+        return 'delete success';
     }
 }
