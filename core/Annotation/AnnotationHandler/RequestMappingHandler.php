@@ -5,6 +5,7 @@ namespace Core\Annotation\AnnotationHandler;
 
 use Core\Annotation\RequestMapping;
 use Core\BeanFactory;
+use Core\Init\DecorationCollection;
 
 return [
     RequestMapping::class => function (\ReflectionMethod $method, $instance, $annotationSelf)
@@ -40,8 +41,11 @@ return [
                     $inputParams[] = $controllerParam;
                 }
             }
-            //通过反射的方式调用方法
-            return $method->invokeArgs($instance, $inputParams);
+
+            //通过装饰器对方法进行调用
+            /** @var $decorationCollection DecorationCollection* */
+            $decorationCollection = BeanFactory::getBeans(DecorationCollection::class);
+            $decorationCollection->exec($method, $instance, $inputParams);
         });
 
         return $instance;

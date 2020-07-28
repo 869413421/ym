@@ -2,8 +2,12 @@
 
 namespace Core\Init;
 
+use Core\Annotation\Bean;
 use Core\Pool\DBPool;
 
+/**
+ * @Bean()
+ */
 class PDOPool extends DBPool
 {
     public function __construct($min = 5, $max = 10, $timeOut = 10)
