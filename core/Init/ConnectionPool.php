@@ -3,10 +3,10 @@
 namespace Core\Init;
 
 
-use Core\Pool\DBPool;
+use Core\Pool\Pool;
 use Illuminate\Database\Connection;
 
-class ConnectionPool extends DBPool
+class ConnectionPool extends Pool
 {
     public function __construct($min = 5, $max = 10, $timeOut = 10)
     {

@@ -6,7 +6,7 @@ use Swoole\Coroutine\Channel;
 use Swoole\Timer;
 
 
-abstract class DBPool
+abstract class Pool
 {
     private $poolMin;
 
@@ -43,8 +43,8 @@ abstract class DBPool
     }
 
     /**
-     * 获取POD链接
-     * @return \PDO
+     * @return mixed
+     * @throws \Exception
      */
     public function getConnectionInstance()
     {
@@ -66,7 +66,7 @@ abstract class DBPool
     }
 
     /**
-     * 回收PDO链接
+     * 回收链接
      * @param $instance
      * @return bool
      */
@@ -88,10 +88,10 @@ abstract class DBPool
             $this->connectionCount++;
             $instance = new \stdClass();
             $instance->useTime = time();
-            $instance->db = $this->createConnectionInstance();
+            $instance->instance = $this->createConnectionInstance();
             $this->channel->push($instance);
         }
-        catch (\PDOException $exception)
+        catch (\Exception $exception)
         {
             $this->connectionCount--;
             throw $exception;

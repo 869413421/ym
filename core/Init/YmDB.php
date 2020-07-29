@@ -4,6 +4,7 @@ namespace Core\Init;
 
 use Core\Annotation\Bean;
 use Core\BeanFactory;
+use Core\Pool\Pool;
 use Illuminate\Database\Capsule\Manager as DB;
 
 /**
@@ -19,7 +20,7 @@ class YmDB
     private $transDb;
 
     /**
-     * @var PDOPool
+     * @var Pool
      */
     private $pool;
 
@@ -50,7 +51,7 @@ class YmDB
         try
         {
             /** @var $db \PDO */
-            $db = $this->transDb->db;
+            $db = $this->transDb->instance;
             if (!$db->commit())
             {
                 throw new \PDOException($db->errorInfo(), $db->errorCode());
@@ -75,7 +76,7 @@ class YmDB
         try
         {
             /** @var $db \PDO */
-            $db = $this->transDb->db;
+            $db = $this->transDb->instance;
             $db->rollBack();
         }
         catch (\PDOException $exception)
@@ -116,7 +117,7 @@ class YmDB
             if ($transDb)
             {
                 $this->transDb = $transDb;
-                $this->db->getConnection($this->connectionName)->setPdo($transDb->db)->beginTransaction();
+                $this->db->getConnection($this->connectionName)->setPdo($transDb->instance)->beginTransaction();
             }
         }
         else
@@ -145,7 +146,7 @@ class YmDB
         }
         if ($pdo && !$isTrans)
         {
-            $this->db->getConnection($this->connectionName)->setPdo($pdo->db);
+            $this->db->getConnection($this->connectionName)->setPdo($pdo->instance);
         }
 
         return $pdo;
@@ -184,7 +185,7 @@ class YmDB
             {
                 throw new \PDOException('connection error');
             }
-            $dbConnection = $this->db->getConnection($this->connectionName)->setPdo($pdo->db);
+            $dbConnection = $this->db->getConnection($this->connectionName)->setPdo($pdo->instance);
             if ($isTrans)
             {
                 if (!$dbConnection->getPdo()->inTransaction())

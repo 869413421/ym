@@ -75,7 +75,7 @@ class UserController
      */
     public function update(Request $request, Response $response)
     {
-        $user = User::find(6);
+        $user = User::find(11);
         $user->name = 'xiaolonglong';
         $user->save();
 
@@ -87,7 +87,7 @@ class UserController
      */
     public function delete(Request $request, Response $response)
     {
-        $user = User::find(6);
+        $user = User::find(11);
         $user->delete();
 
         return 'delete success';
@@ -104,7 +104,8 @@ class UserController
         $user->score = 99;
         $user->save();
 
-        $newUser = User::find(7);
+        $newUser = User::find(15);
+        var_dump($db);
         if ($newUser != null)
         {
             $db->rollBack();
