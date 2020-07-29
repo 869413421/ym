@@ -8,6 +8,7 @@ use App\Model\Post;
 use App\Model\User;
 use Core\Annotation\Bean;
 use Core\Annotation\DB;
+use Core\Annotation\Redis;
 use Core\Annotation\RequestMapping;
 use Core\Annotation\Value;
 use Core\Http\Request;
@@ -38,11 +39,12 @@ class UserController
     private $db2;
 
     /**
+     * @Redis(prefix="User",key="20")
      * @RequestMapping(url="/test/{value1:\d+}/{value2:\d+}")
      */
     public function test(Request $request, int $value1, int $value2, Response $response)
     {
-        return User::find(1);
+        return User::find(20);
         $db = $this->db->beginTransaction();
         $result = $db->table('user_favorite_products')->insertGetId([
             'user_id' => 2,

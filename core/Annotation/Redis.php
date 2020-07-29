@@ -13,5 +13,7 @@ class Redis
 {
     public $key;
     public $value;
-    public $type;
+    public $type = 'string';
+    public $prefix = 'cache_';
+    public $ttl = 0;
 }

@@ -45,7 +45,7 @@ return [
             //通过装饰器对方法进行调用
             /** @var $decorationCollection DecorationCollection* */
             $decorationCollection = BeanFactory::getBeans(DecorationCollection::class);
-            $decorationCollection->exec($method, $instance, $inputParams);
+            return $decorationCollection->exec($method, $instance, $inputParams);
         });
 
         return $instance;
