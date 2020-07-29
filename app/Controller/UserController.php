@@ -39,12 +39,12 @@ class UserController
     private $db2;
 
     /**
-     * @Redis(prefix="User",key="20")
+     * @Redis(prefix="User",key="#1",ttl="3000",type="hash",incrFiled="score",incrValue="1")
      * @RequestMapping(url="/test/{value1:\d+}/{value2:\d+}")
      */
     public function test(Request $request, int $value1, int $value2, Response $response)
     {
-        return User::find(20);
+        return User::find($value1);
         $db = $this->db->beginTransaction();
         $result = $db->table('user_favorite_products')->insertGetId([
             'user_id' => 2,

@@ -10,6 +10,11 @@ use Core\BeanFactory;
  * @Bean()
  * @method static bool set(string $key, string $value)
  * @method static string get(string $key)
+ * @method static string setex(string $key,int $ttl,string $value)
+ * @method static bool hMSet(string $key,$value)
+ * @method static bool expire(string $key,int $ttl)
+ * @method static array hGetAll(string $key)
+ * @method static bool hIncrBy(string $key,string $hashKey,int $value)
  */
 class Redis
 {
