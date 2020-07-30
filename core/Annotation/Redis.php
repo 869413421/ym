@@ -19,4 +19,8 @@ class Redis
     public $incrFiled = '';
     public $incrValue = 1;
     public $warmup = '';
+    public $sortSetFiled = '';
+    public $sortSetKey = '';
+    public $sortIdFiled = '';
+    public $coroutine = false;
 }

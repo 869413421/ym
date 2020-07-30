@@ -4,7 +4,6 @@
 namespace App\Controller;
 
 
-use App\Model\Post;
 use App\Model\User;
 use Core\Annotation\Bean;
 use Core\Annotation\DB;
@@ -14,6 +13,7 @@ use Core\Annotation\Value;
 use Core\Http\Request;
 use Core\Http\Response;
 use Core\Init\YmDB;
+use Swoole\Coroutine\Channel;
 
 /**
  * @Bean(name="testaaa")
@@ -66,6 +66,40 @@ class UserController
     public function warmup()
     {
         return User::all();
+    }
+
+    /**
+     * 缓存有序集合
+     * @RequestMapping(url="/sortSetWarmup")
+     * @Redis(type="sortSet",prefix="score",sortSetFiled="score",sortSetKey="stock",sortIdFiled="id")
+     */
+    public function sortSetWarmup()
+    {
+        return User::all();
+    }
+
+    /**
+     * 缓存有序集合
+     * @RequestMapping(url="/coroutineInsert")
+     * @Redis(type="sortSet",prefix="score",sortSetFiled="score",sortSetKey="stock",sortIdFiled="id",coroutine=true)
+     */
+    public function coroutineInsert()
+    {
+        $channel = new Channel(3);
+        $pageSize = 3;
+        for ($i = 0; $i < 3; $i++)
+        {
+            go(function () use ($channel, $pageSize, $i)
+            {
+                $limit = $i * $pageSize;
+                $data = $this->db->table('users')->take($pageSize)->skip($limit)->get()->map(function ($item)
+                {
+                    return (array)$item;
+                })->toArray();
+                $channel->push($data);
+            });
+        }
+        return $channel;
     }
 
     /**

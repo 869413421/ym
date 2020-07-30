@@ -7,6 +7,7 @@ use Core\Annotation\Redis;
 use Core\BeanFactory;
 use Core\Init\DecorationCollection;
 use Core\Init\Redis as RedisUtil;
+use Swoole\Coroutine\Channel;
 
 return [
     Redis::class => function (\ReflectionMethod $refMethod, $instance, $self)
@@ -92,6 +93,9 @@ function saveDataToRedis(Redis $redisAnnotation, $key, $data)
         case 'hash':
             saveDataByHash($key, $data, $ttl, $redisAnnotation);
             break;
+        case 'sortSet':
+            saveDataBySortSet($data, $redisAnnotation);
+            break;
     }
 }
 
@@ -138,4 +142,41 @@ function saveDataByHash(string $key, $value, int $ttl, Redis $annotationRedis)
         }
     }
 
+}
+
+function saveDataBySortSet($value, Redis $annotationRedis)
+{
+
+
+    if ($annotationRedis->coroutine)
+    {
+        echo '携程取出数据';
+        $data = [];
+        /** @var $value Channel */
+        for ($i = 0; $i < $value->capacity; $i++)
+        {
+            $channelData = $value->pop(5);
+            if (!$channelData)
+                continue;
+            foreach ($channelData as $item)
+            {
+                $data[] = $item;
+            }
+        }
+        var_dump($data);
+        $value = $data;
+    }
+
+    if (is_object($value))
+    {
+        $value = json_decode(json_encode($value), true);
+    }
+
+    foreach ($value as $item)
+    {
+        $sortKey = $annotationRedis->sortSetKey;
+        $sortFiled = $annotationRedis->sortSetFiled;
+        $sortIdFiled = $annotationRedis->prefix . $item[$annotationRedis->sortIdFiled];
+        RedisUtil::zAdd($sortKey, $item[$sortFiled], $sortIdFiled);
+    }
 }
