@@ -26,6 +26,14 @@ class Model extends BaseModel
         });
     }
 
+    public static function all($columns = ['*'])
+    {
+        return self::invoke(function () use ($columns)
+        {
+            return parent::all($columns);
+        });
+    }
+
     public static function __callStatic($method, $parameters)
     {
         return self::invoke(function () use ($method, $parameters)

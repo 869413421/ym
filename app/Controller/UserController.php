@@ -60,6 +60,15 @@ class UserController
     }
 
     /**
+     * @RequestMapping(url="/warmup")
+     * @Redis(warmup="id",type="hash",prefix="User")
+     */
+    public function warmup()
+    {
+        return User::all();
+    }
+
+    /**
      * @RequestMapping(url="/add")
      */
     public function add(Request $request, Response $response)
@@ -107,7 +116,6 @@ class UserController
         $user->save();
 
         $newUser = User::find(15);
-        var_dump($db);
         if ($newUser != null)
         {
             $db->rollBack();

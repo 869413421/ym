@@ -18,4 +18,5 @@ class Redis
     public $ttl = 0;
     public $incrFiled = '';
     public $incrValue = 1;
+    public $warmup = '';
 }

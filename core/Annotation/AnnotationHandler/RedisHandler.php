@@ -90,7 +90,7 @@ function saveDataToRedis(Redis $redisAnnotation, $key, $data)
             saveDataByString($key, json_encode($data), $ttl);
             break;
         case 'hash':
-            saveDataByHash($key, $data, $ttl, $redisAnnotation->incrFiled, $redisAnnotation->incrValue);
+            saveDataByHash($key, $data, $ttl, $redisAnnotation);
             break;
     }
 }
@@ -107,15 +107,35 @@ function saveDataByString($key, $value, $ttl)
     }
 }
 
-function saveDataByHash(string $key, $value, int $ttl, string $incrFiled = '', int $incrValue = 0)
+function saveDataByHash(string $key, $value, int $ttl, Redis $annotationRedis)
 {
     if (is_object($value))
     {
         $value = json_decode(json_encode($value), true);
     }
-    RedisUtil::hMSet($key, $value);
-    if ($ttl > 0)
+    //如果设置了预热，批量插入数据
+    $warmup = $annotationRedis->warmup;
+    if ($warmup)
     {
-        RedisUtil::expire($key, $ttl);
+        foreach ($value as $item)
+        {
+            if (!isset($item[$warmup]))
+                continue;
+            $item_key = $annotationRedis->prefix . $item[$warmup];
+            RedisUtil::hMSet($item_key, $item);
+            if ($ttl > 0)
+            {
+                RedisUtil::expire($item_key, $ttl);
+            }
+        }
     }
+    else
+    {
+        RedisUtil::hMSet($key, $value);
+        if ($ttl > 0)
+        {
+            RedisUtil::expire($key, $ttl);
+        }
+    }
+
 }
