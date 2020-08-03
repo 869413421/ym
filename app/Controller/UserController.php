@@ -8,6 +8,7 @@ use App\Model\User;
 use Core\Annotation\Bean;
 use Core\Annotation\DB;
 use Core\Annotation\Redis;
+use Core\Annotation\RedisLock;
 use Core\Annotation\RequestMapping;
 use Core\Annotation\Value;
 use Core\Http\Request;
@@ -159,5 +160,26 @@ class UserController
             $db->commit();
         }
         return 'delete success';
+    }
+
+    /**
+     * @RequestMapping(url="/lock/{value}")
+     * @RedisLock(key="#0")
+     */
+    public function lock($value)
+    {
+        $user = User::find($value);
+        sleep(5);
+        return $user;
+    }
+
+    /**
+     * @RequestMapping(url="/lock2/{value}")
+     * @RedisLock(key="#0")
+     */
+    public function lock2($value)
+    {
+        $user = User::find($value);
+        return $user;
     }
 }

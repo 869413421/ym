@@ -47,7 +47,7 @@ function getKey(RedisLock $annotationRedisLock, $params)
     if ($findIndex !== false)
     {
         $keyIndex = (int)substr($annotationRedisLock->key, $findIndex + 1);
-        if (!isset($params[$keyIndex]) || !is_string($annotationRedisLock[$keyIndex]))
+        if (!isset($params[$keyIndex]) || !is_string($params[$keyIndex]))
         {
             throw new \Exception('Redis Key Null Or Not String');
         }
