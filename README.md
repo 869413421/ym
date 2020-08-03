@@ -17,32 +17,23 @@
  - 分布式锁注解（基于redis）
  
 # 声明  
-这个框架只是一个学习项目，目的是巩固swoole知识点，学习如何搭建一个框架。  
-实现的功能可能是不够完善的，只是对一些常用的功能进行一定的封装，我完成的目标是这个项目能保持swoole的特性运行起来，如果你需要进一步完善，请fork下去进行进一步的修改，或者去选用更加成熟的框架。
+这个框架只是一个学习项目，目的是巩固swoole知识点，学习如何搭建一个框架。      
+实现的功能可能是不够完善的，只是对一些常用的功能进行一定的封装，我完成的目标是这个项目能保持swoole的特性运行起来。  
+如果你需要进一步完善，请fork下去进行进一步的修改，或者去选用更加成熟的框架。  
 
 # 系统要求
 
  - PHP >= 7.2
  - Swoole PHP 扩展 >= 4.4
- - redis  PHP 拓展
+ - Redis  PHP 拓展
 
 # 安装
 
 获取代码  
-` git clone https://github.com/869413421/HyperfMall.git`
+` git clone https://github.com/869413421/ym.git`
 
 安装组件  
 `composer install`
 
-执行数据库迁移  
-`php bin/hyperf.php migrate --seed`
-
-执行ElasticSearch索引迁移  
-`php bin/hyperf.php es:migrate`
-
-执行同步商品到ElasticSearch命令  
-`php bin/hyperf.php es:sync-products`
-
-启动  
-`php watch`
-
+启动   
+`php boot start`
