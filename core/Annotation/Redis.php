@@ -23,4 +23,5 @@ class Redis
     public $sortSetKey = '';
     public $sortIdFiled = '';
     public $coroutine = false;
+    public $luaScript = '';
 }

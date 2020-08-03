@@ -22,6 +22,10 @@ return [
             {
                 //如果注解的key中包含#号，截取数组index，使用路由参数作为key
                 /** @var $self Redis */
+                if ($self->luaScript)
+                {
+                    return RedisUtil::eval($self->luaScript);
+                }
                 $findIndex = strpos($self->key, '#');
                 if ($findIndex !== false)
                 {

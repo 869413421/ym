@@ -16,6 +16,7 @@ use Core\BeanFactory;
  * @method static array hGetAll(string $key)
  * @method static bool hIncrBy(string $key, string $hashKey, int $value)
  * @method static bool zAdd(string $key, int $score1, $value1)
+ * @method static eval($script, $args = array(), $numKeys = 0)
  */
 class Redis
 {

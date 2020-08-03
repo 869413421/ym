@@ -6,6 +6,7 @@ namespace Core\Init;
 use Core\Annotation\Bean;
 
 /**
+ * 装饰收集器
  * @Bean()
  */
 class DecorationCollection
