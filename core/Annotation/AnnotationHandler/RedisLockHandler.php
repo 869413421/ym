@@ -64,12 +64,16 @@ function getLock(RedisLock $annotationRedisLock, $params)
 {
     $luaScript = <<<script
         local key = KEYS[1];
-        local param = ARGV[1];
-        return redis.call('setnx',key,param);
+        local param = KEYS[2];
+        local expire = ARGV[1];
+        if redis.call('setnx',key,param) == 1 then
+            return redis.call('expire',key,expire);
+            end
+        return 0
 script;
     $key = getKey($annotationRedisLock, $params);
     $value = time();
-    return Redis::eval($luaScript, [$key, $value], 1);
+    return Redis::eval($luaScript, [$key, $value, $annotationRedisLock->expire], 2);
 }
 
 //删除锁

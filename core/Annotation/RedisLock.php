@@ -13,4 +13,5 @@ class RedisLock
     public $prefix = 'lock';
     public $key = '';
     public $retry = 3;
+    public $expire = 10;
 }
