@@ -46,7 +46,9 @@ class HttpServer
     public function onWorkStart(Server $server, $wordId)
     {
         cli_set_process_title('YM WorkProcess');
+        //自动装载初始化
         BeanFactory::init();
+        //获取路由收集器
         $routeCollection = BeanFactory::getBeans('RouteCollection');
         $this->dispatcher = $routeCollection->getDispatcher();
     }
